@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <style>
+    #image_upload {
+      display: none;
+    }
+  </style>
+  <link href="./style.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/inferencejs@1.0.11"></script>
+
+  <div
+    id="image_upload"
+    ondrop="processDrop(event)"
+    ondragover="processDragOver(event)"
+  >
+    <p>Drag a file here.</p>
+  </div>
+  <img
+    src="https://uploads-ssl.webflow.com/5f6bc60e665f54545a1e52a5/63d3f236a6f0dae14cdf0063_drag-image-here.png"
+    id="picture"
+    style="display: none"
+  />
+  <img
+    src="https://media.roboflow.com/qr.png"
+    id="mobile-picture"
+    style="display: none"
+  />
+  <img
+    src="https://uploads-ssl.webflow.com/5f6bc60e665f54545a1e52a5/63d40cd2210b56e0e33593c7_loading-camera2.gif"
+    id="loading_picture"
+    style="display: none"
+    height="480"
+    width="640"
+  />
+
+  <canvas width="640" height="480" id="picture_canvas"></canvas>
+
+  <canvas width="640" height="480" id="video_canvas"></canvas>
+  <a href="#" id="webcam-predict" class="hero_button_secondary"
+    >Predict Using Webcam</a
+  >
+  <a href="#" id="image-predict" class="hero_button_secondary"
+    >Predict Using Image</a
+  >
+  <a href="#" id="image-predict" class="hero_button_secondary">Try on Mobile</a>
+  <select id="model-select"></select>
+  <script src="newhome.js"></script>
+</html>
