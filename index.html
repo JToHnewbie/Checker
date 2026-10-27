@@ -3,25 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 Roboflow RF-DETR 모델 서버 사이트</title>
-    <!-- 최신 inference.js 라이브러리 호출 -->
-    <script src="https://jsdelivr.net"></script>
+    <title>Roboflow RF-DETR 실시간 탐지</title>
+    
+    <!-- 주소가 차단되는 현상을 방지하기 위해 unpkg 주소로 대체합니다 -->
+    <script src="https://unpkg.com"></script>
+    
     <style>
-        body { text-align: center; font-family: sans-serif; background: #222; color: #fff; }
-        #container { position: relative; margin: 20px auto; width: 640px; height: 480px; }
-        video, canvas { position: absolute; top: 0; left: 0; width: 640px; height: 480px; border-radius: 8px; }
+        body { text-align: center; font-family: sans-serif; background: #222; color: #fff; margin: 0; padding: 20px; }
+        #container { position: relative; margin: 20px auto; width: 640px; height: 480px; background: #111; border-radius: 8px; overflow: hidden; }
+        video, canvas { position: absolute; top: 0; left: 0; width: 640px; height: 480px; }
         canvas { z-index: 10; }
+        #status { font-weight: bold; color: #ffeb3b; margin-top: 10px; }
     </style>
 </head>
 <body>
     <h1>Roboflow 실시간 객체 탐지</h1>
+    <div id="status">라이브러리 로딩 중...</div>
+    
     <div id="container">
         <video id="webcam" autoplay muted playsinline></video>
         <canvas id="output_canvas" width="640" height="480"></canvas>
     </div>
 
     <script>
-        // 내 정보 설정
+        // 내 Roboflow 정보 설정
         const API_KEY = "rf_jtohnewbie-s-workspace"; 
         const MODEL_NAME = "my-first-project-6mg7b";
         const MODEL_VERSION = 1;
@@ -29,49 +34,64 @@
         const video = document.getElementById("webcam");
         const canvas = document.getElementById("output_canvas");
         const ctx = canvas.getContext("2d");
-        const inferEngine = new inferencejs.InferenceEngine();
+        const statusText = document.getElementById("status");
 
-        // 1. 카메라 연동
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-            .then((stream) => {
+        // 페이지 로드 후 실행
+        window.addEventListener("load", async () => {
+            // 라이브러리가 정상 로드되었는지 최종 확인
+            if (typeof inferencejs === "undefined") {
+                statusText.innerText = "에러: Roboflow 라이브러리를 로드하지 못했습니다. 네트워크 연결을 확인하거나 주소를 변경해야 합니다.";
+                return;
+            }
+
+            statusText.innerText = "카메라 연결 시도 중...";
+
+            // 1. 카메라 연동
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 video.srcObject = stream;
                 video.play();
-            })
-            .catch((err) => alert("카메라를 불러올 수 없습니다: " + err));
+                statusText.innerText = "카메라 연결 완료! 모델 로딩 중...";
+            } catch (err) {
+                statusText.innerText = "카메라를 불러올 수 없습니다. 권한 승인이 필요합니다: " + err;
+                return;
+            }
 
-        // 2. 모델 다운로드 및 실시간 추론 시작
-        video.addEventListener("loadeddata", async () => {
-            console.log("모델을 불러오는 중...");
-            const workerId = await inferEngine.startWorker(MODEL_NAME, MODEL_VERSION, API_KEY);
-            console.log("모델 로드 완료!");
+            // 2. 모델 다운로드 및 실시간 추론 시작
+            video.addEventListener("loadeddata", async () => {
+                try {
+                    const inferEngine = new inferencejs.InferenceEngine();
+                    const workerId = await inferEngine.startWorker(MODEL_NAME, MODEL_VERSION, API_KEY);
+                    statusText.innerText = "모델 로드 완료! 실시간 추론 중...";
 
-            const detectFrame = async () => {
-                // 실시간 프레임 추론
-                const predictions = await inferEngine.infer(workerId, new inferencejs.CVImage(video));
-                
-                // 캔버스 초기화 및 비디오 다시 그리기
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // 추론 상자(Bounding Box) 그리기
-                predictions.forEach(p => {
-                    const x = p.bbox.x - p.bbox.width / 2;
-                    const y = p.bbox.y - p.bbox.height / 2;
-                    
-                    ctx.strokeStyle = "#C7FC00";
-                    ctx.lineWidth = 4;
-                    ctx.strokeRect(x, y, p.bbox.width, p.bbox.height);
+                    const detectFrame = async () => {
+                        const predictions = await inferEngine.infer(workerId, new inferencejs.CVImage(video));
+                        
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        predictions.forEach(p => {
+                            const x = p.bbox.x - p.bbox.width / 2;
+                            const y = p.bbox.y - p.bbox.height / 2;
+                            
+                            ctx.strokeStyle = "#C7FC00";
+                            ctx.lineWidth = 4;
+                            ctx.strokeRect(x, y, p.bbox.width, p.bbox.height);
 
-                    ctx.fillStyle = "#C7FC00";
-                    ctx.fillRect(x, y - 25, ctx.measureText(p.class).width + 20, 25);
-                    
-                    ctx.font = "16px Arial";
-                    ctx.fillStyle = "black";
-                    ctx.fillText(`${p.class} (${Math.round(p.confidence * 100)}%)`, x + 5, y - 7);
-                });
+                            ctx.fillStyle = "#C7FC00";
+                            ctx.fillRect(x, y - 25, ctx.measureText(p.class).width + 20, 25);
+                            
+                            ctx.font = "16px Arial";
+                            ctx.fillStyle = "black";
+                            ctx.fillText(`${p.class} (${Math.round(p.confidence * 100)}%)`, x + 5, y - 7);
+                        });
 
-                requestAnimationFrame(detectFrame);
-            };
-            detectFrame();
+                        requestAnimationFrame(detectFrame);
+                    };
+                    detectFrame();
+                } catch (modelErr) {
+                    statusText.innerText = "모델 로드 중 오류 발생: " + modelErr;
+                }
+            });
         });
     </script>
 </body>
