@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roboflow RF-DETR 실시간 탐지</title>
     
-    <!-- 주소가 차단되는 현상을 방지하기 위해 unpkg 주소로 대체합니다 -->
-    <script src="https://unpkg.com"></script>
+    <!-- 1. 외부 CDN 주소가 차단되는 문제를 없애기 위해 내 저장소 안의 파일을 직접 호출합니다 -->
+    <script src="./inference.js"></script>
     
     <style>
         body { text-align: center; font-family: sans-serif; background: #222; color: #fff; margin: 0; padding: 20px; }
         #container { position: relative; margin: 20px auto; width: 640px; height: 480px; background: #111; border-radius: 8px; overflow: hidden; }
         video, canvas { position: absolute; top: 0; left: 0; width: 640px; height: 480px; }
         canvas { z-index: 10; }
-        #status { font-weight: bold; color: #ffeb3b; margin-top: 10px; }
+        #status { font-weight: bold; color: #ffeb3b; margin-top: 10px; font-size: 16px; }
     </style>
 </head>
 <body>
     <h1>Roboflow 실시간 객체 탐지</h1>
-    <div id="status">라이브러리 로딩 중...</div>
+    <div id="status">로컬 엔진 구성 확인 중...</div>
     
     <div id="container">
         <video id="webcam" autoplay muted playsinline></video>
@@ -36,37 +36,39 @@
         const ctx = canvas.getContext("2d");
         const statusText = document.getElementById("status");
 
-        // 페이지 로드 후 실행
         window.addEventListener("load", async () => {
-            // 라이브러리가 정상 로드되었는지 최종 확인
+            // 로컬 파일 인식 여부 체크
             if (typeof inferencejs === "undefined") {
-                statusText.innerText = "에러: Roboflow 라이브러리를 로드하지 못했습니다. 네트워크 연결을 확인하거나 주소를 변경해야 합니다.";
+                statusText.style.color = "#ff3333";
+                statusText.innerText = "에러: 저장소 내부의 inference.js 파일을 찾을 수 없거나 불러오지 못했습니다. 파일 업로드 상태를 확인하세요.";
                 return;
             }
 
-            statusText.innerText = "카메라 연결 시도 중...";
+            statusText.innerText = "카메라 연결을 요청하는 중...";
 
-            // 1. 카메라 연동
+            // 1. 카메라 연동 및 권한 요청
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
                 video.srcObject = stream;
                 video.play();
-                statusText.innerText = "카메라 연결 완료! 모델 로딩 중...";
+                statusText.style.color = "#4caf50";
+                statusText.innerText = "카메라 승인 완료! Roboflow AI 모델을 빌드하고 있습니다...";
             } catch (err) {
-                statusText.innerText = "카메라를 불러올 수 없습니다. 권한 승인이 필요합니다: " + err;
+                statusText.style.color = "#ff3333";
+                statusText.innerText = "카메라를 켤 수 없습니다. 브라우저 주소창 왼쪽의 자물쇠 버튼을 눌러 카메라 권한을 [허용]해 주세요. 에러: " + err;
                 return;
             }
 
-            // 2. 모델 다운로드 및 실시간 추론 시작
+            // 2. 모델 추론 루프
             video.addEventListener("loadeddata", async () => {
                 try {
                     const inferEngine = new inferencejs.InferenceEngine();
                     const workerId = await inferEngine.startWorker(MODEL_NAME, MODEL_VERSION, API_KEY);
-                    statusText.innerText = "모델 로드 완료! 실시간 추론 중...";
+                    statusText.style.color = "#00e676";
+                    statusText.innerText = "시스템 정상 구동 중! AI 실시간 객체 감지가 활성화되었습니다.";
 
                     const detectFrame = async () => {
                         const predictions = await inferEngine.infer(workerId, new inferencejs.CVImage(video));
-                        
                         ctx.clearRect(0, 0, canvas.width, canvas.height);
                         
                         predictions.forEach(p => {
@@ -89,7 +91,8 @@
                     };
                     detectFrame();
                 } catch (modelErr) {
-                    statusText.innerText = "모델 로드 중 오류 발생: " + modelErr;
+                    statusText.style.color = "#ff3333";
+                    statusText.innerText = "Roboflow 모델을 내려받는 도중 보안 네트워크 차단이 발생했습니다: " + modelErr;
                 }
             });
         });
