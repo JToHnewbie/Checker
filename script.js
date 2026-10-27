@@ -26,7 +26,7 @@ var color_choices = [
 ];
 
 var available_models = {
-  "microsoft-coco": {
+  "my-first-project-6mg7b": {
     name: "Microsoft COCO",
     version: 9,
     video: "",
@@ -211,7 +211,7 @@ async function switchModel() {
   });
 }
 
-  // hide webcam button if model is not microsoft-coco
+  // hide webcam button if model is not my-first-project-6mg7b
   document.getElementById("webcam-predict").style.display = "inline";
 
   // change video to use new one
