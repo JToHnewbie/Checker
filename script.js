@@ -94,7 +94,7 @@ for (var item in available_models) {
 }
 
 var current_model_name = "my-first-project-6mg7b";
-const API_KEY = "current_model_name";
+const API_KEY = "rf_e3x6QcEuPNfrRQikhph8n9cQhwp2";
 const DETECT_API_KEY = "4l5zOVomQmkAqlTJPVKN";
 const CAMERA_ACCESS_URL =
   "https://uploads-ssl.webflow.com/5f6bc60e665f54545a1e52a5/63d40cd1de273045d359cf9a_camera-access2.png";
@@ -226,7 +226,6 @@ async function switchModel() {
     modelWorkerId = id;
     console.log("model loaded");
   });
-}
 
 // apply switchModel to select
 document.getElementById("model-select").addEventListener("change", switchModel);
