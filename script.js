@@ -27,7 +27,7 @@ var color_choices = [
 
 var available_models = {
   "my-first-project-6mg7b": {
-    name: "Microsoft COCO",
+    name: "My Custom Model",
     version: 1,
     video: "",
     confidence: 0.6,
@@ -94,7 +94,7 @@ for (var item in available_models) {
 }
 
 var current_model_name = "my-first-project-6mg7b";
-const API_KEY = "rf_e3x6QcEuPNfrRQikhph8n9cQhwp2";
+const API_KEY = "rf_jtohnewbie-s-workspace";
 const DETECT_API_KEY = "4l5zOVomQmkAqlTJPVKN";
 const CAMERA_ACCESS_URL =
   "https://uploads-ssl.webflow.com/5f6bc60e665f54545a1e52a5/63d40cd1de273045d359cf9a_camera-access2.png";
@@ -127,14 +127,12 @@ async function apiRequest(image) {
     "?api_key=" +
     DETECT_API_KEY;
 
-  // no cors
   return fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: image,
-    //mode: "no-cors",
     redirect: "follow",
   })
     .then((response) => response.json())
@@ -181,7 +179,6 @@ document
 var bounding_box_colors = {};
 
 async function switchModel() {
-  // 드롭다운 선택값을 무시하고 내 모델 정보로 강제 고정합니다.
   current_model_name = "my-first-project-6mg7b";
   current_model_version = 1;
 
@@ -190,44 +187,23 @@ async function switchModel() {
   document.getElementById("example_demo").style.display = "block";
   document.getElementById("picture").style.display = "none";
   
-  // video 요소 재생
   document.getElementById("video").style.display = "block";
   document.getElementById("video").play();
   
-  // 하단 샘플 이미지 트레이 숨기기 (내 모델과 상관없는 COCO 이미지이므로)
   document.getElementById("prechosen_images_parent").style.display = "none";
 
-  // 웹캠 버튼 활성화
   document.getElementById("webcam-predict").style.display = "inline";
 
   if (webcamLoop) {
     setImageState(LOADING_URL, "video_canvas");
   }
 
-  // 내 모델 로드 시작
   getModel().then((id) => {
     modelWorkerId = id;
     console.log("내 커스텀 모델 로드 완료!");
   });
 }
 
-  // hide webcam button if model is not my-first-project-6mg7b
-  document.getElementById("webcam-predict").style.display = "inline";
-
-  // change video to use new one
-  // var video = document.getElementById("video_source");
-  // video.src = available_models[current_model_name]["video"];
-
-  if (webcamLoop) {
-    setImageState(LOADING_URL, "video_canvas");
-  }
-
-  getModel().then((id) => {
-    modelWorkerId = id;
-    console.log("model loaded");
-  });
-
-// apply switchModel to select
 document.getElementById("model-select").addEventListener("change", switchModel);
 
 function setImageState(src, canvas = "picture_canvas") {
@@ -261,13 +237,10 @@ function drawBoundingBoxes(
     if (predictions[i].class in bounding_box_colors) {
       ctx.strokeStyle = bounding_box_colors[predictions[i].class];
     } else {
-      // random color
       var color =
         color_choices[Math.floor(Math.random() * color_choices.length)];
       ctx.strokeStyle = color;
-      // remove color from choices
       color_choices.splice(color_choices.indexOf(color), 1);
-
       bounding_box_colors[predictions[i].class] = color;
     }
 
@@ -280,57 +253,40 @@ function drawBoundingBoxes(
     if (!fromDetectAPI) {
       x -= sx;
       y -= sy;
-
       x *= scalingRatio;
       y *= scalingRatio;
       width *= scalingRatio;
       height *= scalingRatio;
     }
 
-    // if box is partially outside 640x480, clip it
     if (x < 0) {
       width += x;
       x = 0;
     }
-
     if (y < 0) {
       height += y;
       y = 0;
     }
 
-    // if first prediction, double label size
-
     ctx.rect(x, y, width, width);
-
     ctx.fillStyle = "rgba(0, 0, 0, 0)";
     ctx.fill();
 
     ctx.fillStyle = ctx.strokeStyle;
     ctx.lineWidth = "4";
     ctx.strokeRect(x, y, width, height);
-    // put colored background on text
+    
     var text = ctx.measureText(
       prediction.class + " " + Math.round(confidence * 100) + "%"
     );
-    // if (i == 0) {
-    //     text.width *= 2;
-    // }
 
-    // set x y fill text to be within canvas x y, even if x is outside
-    // if (y < 0) {
-    //     y = -40;
-    // }
     if (y < 20) {
       y = 30;
     }
 
-    // make sure label doesn't leave canvas
-
     ctx.fillStyle = ctx.strokeStyle;
     ctx.fillRect(x - 2, y - 30, text.width + 4, 30);
-    // use monospace font
     ctx.font = "15px monospace";
-    // use black text
     ctx.fillStyle = "black";
 
     ctx.fillText(
@@ -344,14 +300,11 @@ function drawBoundingBoxes(
 function webcamInference() {
   setImageState(LOADING_URL, "video_canvas");
   webcamLoop = true;
-  // hide prechosen_images_parent
   document.getElementById("prechosen_images_parent").style.display = "none";
   document.getElementById("picture").style.display = "none";
-  // hide picture canvas, show video canvas
   document.getElementById("picture_canvas").style.display = "none";
   document.getElementById("video_canvas").style.display = "block";
 
-  // if no model, load it
   if (modelWorkerId == null) {
     getModel().then((id) => (modelWorkerId = id));
   }
@@ -365,10 +318,7 @@ function webcamInference() {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: false })
       .then(function (stream) {
-        // if video exists, show it
-        // create video element
         const settings = stream.getVideoTracks()[0].getSettings();
-        console.log(settings);
         var video = document.createElement("video");
         video.srcObject = stream;
         video.id = "video1";
@@ -381,10 +331,7 @@ function webcamInference() {
         video.style.width = width + "px";
 
         var canvas = document.getElementById("video_canvas");
-        // canvas.width = settings.width;
-        // canvas.height = settings.height;
         var ctx = canvas.getContext("2d");
-
         ctx.scale(1, 1);
 
         video.addEventListener(
@@ -410,9 +357,7 @@ function webcamInference() {
               );
               setTimeout(detectFrame, 1000 / 30);
               ctx.drawImage(video, 0, 0, width, height, 0, 0, width, height);
-
               ctx.beginPath();
-
               drawBoundingBoxes(predictions, canvas, ctx, scalingRatio, sx, sy);
 
               if (!webcamLoop) {
@@ -425,7 +370,6 @@ function webcamInference() {
         );
       })
       .catch(function (err) {
-        // replace with img
         setImageState(CAMERA_ACCESS_URL);
       });
   }
@@ -436,28 +380,22 @@ function getCoordinates(img) {
   var dy = 0;
   var dWidth = 640;
   var dHeight = 480;
-
   var sy;
   var sx;
   var sWidth = 0;
   var sHeight = 0;
-
   var imageWidth = img.width;
   var imageHeight = img.height;
 
   const canvasRatio = dWidth / dHeight;
   const imageRatio = imageWidth / imageHeight;
 
-  // scenario 1 - image is more vertical than canvas
   if (canvasRatio >= imageRatio) {
-    console.log("more vertical");
     var sx = 0;
     var sWidth = imageWidth;
     var sHeight = sWidth / canvasRatio;
     var sy = (imageHeight - sHeight) / 2;
   } else {
-    console.log("more horizontal");
-    // scenario 2 - image is more horizontal than canvas
     var sy = 0;
     var sHeight = imageHeight;
     var sWidth = sHeight * canvasRatio;
@@ -465,11 +403,9 @@ function getCoordinates(img) {
   }
 
   var scalingRatio = dWidth / sWidth;
-
   if (scalingRatio == Infinity) {
     scalingRatio = 1;
   }
-
   return [sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight, scalingRatio];
 }
 
@@ -484,7 +420,6 @@ function getBase64Image(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight) {
 }
 
 function imageInference(e) {
-  // replace canvas with image
   document.getElementById("picture").style.display = "none";
   document.getElementById("picture_canvas").style.display = "block";
   document.getElementById("example_demo").style.display = "none";
@@ -495,7 +430,6 @@ function imageInference(e) {
   var img = new Image();
   img.src = e.src;
   img.crossOrigin = "anonymous";
-
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   img.onload = function () {
@@ -503,21 +437,10 @@ function imageInference(e) {
     var [sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight, scalingRatio] =
       getCoordinates(img);
 
-    var base64 = getBase64Image(
-      img,
-      sx,
-      sy,
-      sWidth,
-      sHeight,
-      dx,
-      dy,
-      dWidth,
-      dHeight
-    );
+    var base64 = getBase64Image(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
 
     apiRequest(base64).then(function (predictions) {
       ctx.beginPath();
-      // draw image to canvas
       ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
       var predictions = predictions.map(function (prediction) {
         return {
@@ -531,7 +454,6 @@ function imageInference(e) {
           confidence: prediction.confidence,
         };
       });
-
       drawBoundingBoxes(predictions, canvas, ctx, scalingRatio, sx, sy, true);
     });
   };
@@ -540,13 +462,11 @@ function imageInference(e) {
 function processDrop(e) {
   e.preventDefault();
   e.stopPropagation();
-  // hide #picture
   document.getElementById("picture").style.display = "none";
   document.getElementById("picture_canvas").style.display = "block";
   document.getElementById("example_demo").style.display = "none";
   document.getElementById("video_canvas").style.display = "none";
 
-  // clear canvas if necessary
   if (document.getElementById("picture_canvas").getContext) {
     var canvas = document.getElementById("picture_canvas");
     var ctx = canvas.getContext("2d");
@@ -560,14 +480,8 @@ function processDrop(e) {
   var file = e.dataTransfer.files[0];
   var reader = new FileReader();
 
-  reader.readAsDataURL(file);
-
-  // only allow png, jpeg, jpg
-  if (
-    file.type == "image/png" ||
-    file.type == "image/jpeg" ||
-    file.type == "image/jpg"
-  ) {
+  if (file && (file.type == "image/png" || file.type == "image/jpeg" || file.type == "image/jpg")) {
+    reader.readAsDataURL(file);
     reader.onload = function (event) {
       var img = new Image();
       img.src = event.target.result;
@@ -576,25 +490,15 @@ function processDrop(e) {
           getCoordinates(img);
         setImageState(LOADING_URL, "picture_canvas");
 
-        modelWorkerId.then((modelWorkerId) => {
+        if (modelWorkerId) {
           inferEngine
             .infer(modelWorkerId, new inferencejs.CVImage(img))
             .then((predictions) => {
-              ctx.drawImage(
-                img,
-                sx,
-                sy,
-                sWidth,
-                sHeight,
-                dx,
-                dy,
-                dWidth,
-                dHeight
-              );
+              ctx.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
               ctx.beginPath();
               drawBoundingBoxes(predictions, canvas, ctx, scalingRatio, sx, sy);
             });
-        });
+        }
       };
       document
         .getElementById("picture_canvas")
@@ -609,9 +513,7 @@ function processDrop(e) {
   }
 }
 
-// click on image-predict, show image inference
 document.getElementById("image-predict").addEventListener("click", function () {
-  // show prechosen_images_parent
   document.getElementById("prechosen_images_parent").style.display = "block";
   document.getElementById("picture_canvas").style.display = "none";
   document.getElementById("picture").style.display = "block";
@@ -619,12 +521,10 @@ document.getElementById("image-predict").addEventListener("click", function () {
   document.getElementById("video").style.display = "none";
   document.getElementById("video_canvas").style.display = "none";
 
-  // terminate webcam loop if running
   if (webcamLoop) {
     webcamLoop = false;
   }
 
-  // set event handler on image
   document.getElementById("picture").addEventListener("dragover", function (e) {
     e.preventDefault();
     e.stopPropagation();
