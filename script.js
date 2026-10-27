@@ -94,7 +94,7 @@ for (var item in available_models) {
 }
 
 var current_model_name = "my-first-project-6mg7b";
-const API_KEY = "rf_e3x6QcEuPNfrRQikhph8n9cQhwp2";
+const API_KEY = "current_model_name";
 const DETECT_API_KEY = "4l5zOVomQmkAqlTJPVKN";
 const CAMERA_ACCESS_URL =
   "https://uploads-ssl.webflow.com/5f6bc60e665f54545a1e52a5/63d40cd1de273045d359cf9a_camera-access2.png";
@@ -116,7 +116,7 @@ window.addEventListener("scroll", function () {
 });
 
 async function apiRequest(image) {
-  var version = available_models[current_model_name]["version"];
+  var version = current_model_version;
   var name = current_model_name;
 
   var url =
@@ -181,30 +181,35 @@ document
 var bounding_box_colors = {};
 
 async function switchModel() {
-  current_model_name = document.getElementById("model-select").value;
-  current_model_version = available_models[current_model_name]["version"];
+  // 드롭다운 선택값을 무시하고 내 모델 정보로 강제 고정합니다.
+  current_model_name = "my-first-project-6mg7b";
+  current_model_version = 1;
 
   document.getElementById("video_canvas").style.display = "none";
   document.getElementById("picture_canvas").style.display = "none";
   document.getElementById("example_demo").style.display = "block";
   document.getElementById("picture").style.display = "none";
-  // show video
+  
+  // video 요소 재생
   document.getElementById("video").style.display = "block";
   document.getElementById("video").play();
-  // hide command tray
+  
+  // 하단 샘플 이미지 트레이 숨기기 (내 모델과 상관없는 COCO 이미지이므로)
   document.getElementById("prechosen_images_parent").style.display = "none";
 
-  // IF MODEL IS microsoft-coco, change
+  // 웹캠 버튼 활성화
+  document.getElementById("webcam-predict").style.display = "inline";
 
-  // change prechosen_images_parent srcs
-  var prechosen_images = document.getElementById("prechosen_images");
-
-  var prechosen_images = prechosen_images.children;
-
-  for (var i = 0; i < prechosen_images.length; i++) {
-    prechosen_images[i].src =
-      available_models[current_model_name]["imageGrid"][i];
+  if (webcamLoop) {
+    setImageState(LOADING_URL, "video_canvas");
   }
+
+  // 내 모델 로드 시작
+  getModel().then((id) => {
+    modelWorkerId = id;
+    console.log("내 커스텀 모델 로드 완료!");
+  });
+}
 
   // hide webcam button if model is not microsoft-coco
   document.getElementById("webcam-predict").style.display = "inline";
