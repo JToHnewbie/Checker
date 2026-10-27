@@ -3,50 +3,75 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Roboflow AI 분석</title>
-
+  <title>Roboflow 실시간 AI 탐지</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
   <main class="container">
     <header>
-      <h1>🤖 AI 이미지 분석</h1>
-      <p>Roboflow 학습 모델을 이용한 이미지 분석</p>
+      <h1>🤖 실시간 AI 객체 탐지</h1>
+      <p>Roboflow 모델을 이용한 웹캠 분석</p>
     </header>
 
-    <section class="card">
-      <h2>이미지 선택</h2>
+    <section class="panel">
+      <div class="video-container">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="overlay"></canvas>
 
-      <input
-        type="file"
-        id="imageInput"
-        accept="image/*"
-      >
-
-      <div class="preview">
-        <img id="previewImage" alt="분석할 이미지">
-        <canvas id="resultCanvas"></canvas>
+        <div id="placeholder">
+          웹캠 시작 버튼을 눌러 주세요.
+        </div>
       </div>
 
-      <button id="predictButton" disabled>
-        AI 분석 시작
-      </button>
+      <div class="controls">
+        <button id="startButton">📷 웹캠 시작</button>
+        <button id="stopButton" disabled>⏹ 웹캠 종료</button>
+      </div>
 
-      <p id="status">이미지를 선택해 주세요.</p>
+      <div class="settings">
+        <label for="interval">
+          분석 간격
+          <span id="intervalValue">700ms</span>
+        </label>
+        <input
+          id="interval"
+          type="range"
+          min="300"
+          max="2000"
+          step="100"
+          value="700"
+        >
+      </div>
+
+      <div class="status">
+        <span id="statusDot"></span>
+        <span id="status">대기 중</span>
+      </div>
     </section>
 
-    <section class="card">
+    <section class="panel">
       <h2>분석 결과</h2>
+
+      <div class="stats">
+        <div class="stat">
+          <span>탐지 객체</span>
+          <strong id="objectCount">0</strong>
+        </div>
+
+        <div class="stat">
+          <span>최근 분석</span>
+          <strong id="lastTime">-</strong>
+        </div>
+      </div>
+
       <div id="results">
-        분석 결과가 여기에 표시됩니다.
+        아직 분석 결과가 없습니다.
       </div>
     </section>
 
-    <footer>
-      Powered by Roboflow
-    </footer>
+    <p class="notice">
+      웹캠 영상은 Roboflow API로 전송되어 분석됩니다.
+    </p>
   </main>
 
   <script src="script.js"></script>
