@@ -72,9 +72,9 @@ async function startCamera() {
 
   if (
     !API_KEY ||
-    API_KEY === "YOUR_ROBOFLOW_API_KEY" ||
+    API_KEY === "rf_e3x6QcEuPNfrRQikhph8n9cQhwp2" ||
     !MODEL_VERSION ||
-    MODEL_VERSION === "YOUR_MODEL_VERSION"
+    MODEL_VERSION === "1"
   ) {
     setStatus(
       "script.js에 Roboflow API 키와 모델 버전을 설정해 주세요."
