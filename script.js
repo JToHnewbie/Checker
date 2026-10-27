@@ -2,12 +2,16 @@
 // Roboflow 모델 설정
 // ========================================
 
-const MODEL_ID = "my-first-project-6mg7b";
-const MODEL_VERSION = "1";
-const API_KEY = "rf_e3x6QcEuPNfrRQikhph8n9cQhwp2";
+// 실제 Roboflow 프로젝트에서 확인한 모델 ID
+const MODEL_ID =
+  "jtohnewbie-s-workspace/my-first-project-6mg7b-1-rfdetr-small-t2";
 
+// Roboflow API 키
+const API_KEY = "YOUR_ROBOFLOW_API_KEY";
+
+// RF-DETR 모델 추론 API
 const API_URL =
-  `https://detect.roboflow.com/${MODEL_ID}/${MODEL_VERSION}`;
+  `https://serverless.roboflow.com/${MODEL_ID}`;
 
 
 // ========================================
