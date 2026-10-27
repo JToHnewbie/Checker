@@ -7,7 +7,7 @@ const MODEL_ID =
   "jtohnewbie-s-workspace/my-first-project-6mg7b-1-rfdetr-small-t2";
 
 // Roboflow API 키
-const API_KEY = "YOUR_ROBOFLOW_API_KEY";
+const API_KEY = "rf_e3x6QcEuPNfrRQikhph8n9cQhwp2";
 
 // RF-DETR 모델 추론 API
 const API_URL =
