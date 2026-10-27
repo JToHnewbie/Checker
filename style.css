@@ -1,0 +1,112 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  background: #f3f5f9;
+  color: #202938;
+  font-family: Arial, "Malgun Gothic", sans-serif;
+}
+
+.container {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+header h1 {
+  font-size: 30px;
+}
+
+header p {
+  color: #64748b;
+}
+
+.card {
+  background: white;
+  padding: 24px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+input[type="file"] {
+  width: 100%;
+  margin: 12px 0 20px;
+}
+
+.preview {
+  position: relative;
+  width: 100%;
+  min-height: 100px;
+  margin-bottom: 20px;
+}
+
+.preview img {
+  display: none;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.preview canvas {
+  display: none;
+  width: 100%;
+  height: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+#status {
+  margin-top: 16px;
+  color: #64748b;
+  overflow-wrap: anywhere;
+}
+
+.result-item {
+  padding: 12px;
+  margin: 10px 0;
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+footer {
+  text-align: center;
+  color: #94a3b8;
+  padding: 20px;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
