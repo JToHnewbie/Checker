@@ -241,28 +241,39 @@ async function analyzeFrame(currentSession) {
     const frame = captureFrame();
 
     const response = await fetch(
-      `${API_URL}?api_key=${encodeURIComponent(API_KEY)}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: frame.base64
-      }
-    );
+  `${API_URL}?api_key=${encodeURIComponent(API_KEY)}`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: frame.base64
+  }
+);
 
-    if (!response.ok) {
-      const detail = await response.text();
-      throw new Error(`API 오류 ${response.status}: ${detail}`);
-    }
+if (!response.ok) {
+  const detail = await response.text();
 
-    const data = await response.json();
+  throw new Error(
+    `Roboflow API 오류 ${response.status}: ${detail}`
+  );
+}
 
-    // 종료 후 도착한 응답은 화면에 반영하지 않습니다.
-    if (!isRunning || currentSession !== sessionId) return;
+const data = await response.json();
 
-    drawPredictions(data.predictions || [], frame.width, frame.height);
-    showResults(data.predictions || []);
+console.log("Roboflow 응답:", data);
+
+if (!isRunning || currentSession !== sessionId) {
+  return;
+}
+
+drawPredictions(
+  data.predictions || [],
+  frame.width,
+  frame.height
+);
+
+showResults(data.predictions || []);
 
     lastTime.textContent = new Date().toLocaleTimeString("ko-KR");
     setStatus("실시간 AI 분석 중...");
