@@ -28,7 +28,7 @@ var color_choices = [
 var available_models = {
   "my-first-project-6mg7b": {
     name: "Microsoft COCO",
-    version: 9,
+    version: 1,
     video: "",
     confidence: 0.6,
     imageGrid: [
